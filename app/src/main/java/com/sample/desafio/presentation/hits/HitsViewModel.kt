@@ -1,0 +1,48 @@
+package com.sample.desafio.presentation.hits
+
+import androidx.annotation.VisibleForTesting
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.sample.desafio.domain.commons.DefaultUseCaseExecutor
+import com.sample.desafio.domain.commons.UseCaseExecutor
+import com.sample.desafio.domain.commons.functional.onSuccess
+import com.sample.desafio.domain.usecases.DeleteHitUseCase
+import com.sample.desafio.domain.usecases.SubscribeHitsUseCase
+import com.sample.desafio.domain.usecases.SyncHitsUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+
+@HiltViewModel
+class HitsViewModel @Inject constructor(
+    private val subscribeHitsUseCase: SubscribeHitsUseCase,
+    private val syncHitsUseCase: SyncHitsUseCase,
+    private val deleteHitUseCase: DeleteHitUseCase
+) : ViewModel(), UseCaseExecutor by DefaultUseCaseExecutor() {
+
+    private val _hits = MutableLiveData<List<HitStateUi>>()
+    val hits: LiveData<List<HitStateUi>> = _hits
+
+    fun initViewModel() {
+        subscribeHits()
+        refreshData()
+    }
+
+    @VisibleForTesting
+    fun subscribeHits() {
+        subscribeHitsUseCase(viewModelScope, Unit) { either ->
+            either.onSuccess { hitsDomain ->
+                _hits.value = hitsDomain.toListStateUi()
+            }
+        }
+    }
+
+    fun refreshData() {
+        syncHitsUseCase(viewModelScope, Unit)
+    }
+
+    fun removeItem(id: String) {
+        deleteHitUseCase(viewModelScope, id)
+    }
+}
