@@ -1,6 +1,7 @@
 package com.sample.desafio.presentation.hits
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -66,6 +67,14 @@ class MainActivity : AppCompatActivity(), HitItemTouchHelper.RecyclerItemTouchHe
     }
 
     private fun clickItem(hit: HitStateUi) {
-        startActivity(DetailsActivity.getIntent(this, hit))
+        if (hit.url.isEmpty()) {
+            this.showToastWebViewEmpty()
+        } else {
+            startActivity(DetailsActivity.getIntent(this, hit))
+        }
+    }
+
+    private fun showToastWebViewEmpty() {
+        Toast.makeText(this, getString(R.string.web_not_available), Toast.LENGTH_LONG).show()
     }
 }
