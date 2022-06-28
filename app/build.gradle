@@ -1,0 +1,87 @@
+plugins {
+    id "com.android.application"
+    id "org.jetbrains.kotlin.android"
+    id "kotlin-kapt"
+    id "dagger.hilt.android.plugin"
+    id "kotlin-parcelize"
+}
+
+android {
+    compileSdk 32
+
+    defaultConfig {
+        applicationId "com.sample.desafio"
+        minSdk 21
+        targetSdk 32
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        debug {
+            buildConfigField "String", "BASE_URL", '"https://hn.algolia.com"'
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+            buildConfigField "String", "BASE_URL", '"https://hn.algolia.com"'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+    kotlinOptions {
+        jvmTarget = "11"
+    }
+
+    viewBinding {
+        enabled = true
+    }
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+}
+
+dependencies {
+
+    implementation "androidx.core:core-ktx:1.8.0"
+    implementation "androidx.appcompat:appcompat:1.4.2"
+    implementation "com.google.android.material:material:1.6.1"
+    implementation "androidx.constraintlayout:constraintlayout:2.1.4"
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
+
+    //Retrofit
+    implementation "com.squareup.okhttp3:okhttp:$rootProject.okhttpVersion"
+    implementation "com.squareup.okhttp3:logging-interceptor:$rootProject.okhttpVersion"
+    implementation "com.squareup.retrofit2:retrofit:$rootProject.retrofitVersion"
+    implementation "com.squareup.retrofit2:converter-gson:$rootProject.retrofitVersion"
+
+    // logging
+    implementation "com.jakewharton.timber:timber:$rootProject.timberVersion"
+
+    implementation "com.google.dagger:hilt-android:$rootProject.hiltVersion"
+    kapt "com.google.dagger:hilt-android-compiler:$rootProject.hiltVersion"
+
+    implementation("androidx.lifecycle:lifecycle-extensions:$rootProject.lifecycleKtxVersion")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$rootProject.viewModelKtxVersion")
+    implementation("androidx.fragment:fragment-ktx:$rootProject.fragmentKtxVersion")
+
+    implementation("androidx.room:room-runtime:$rootProject.roomVersion")
+    implementation("androidx.room:room-ktx:$rootProject.roomVersion")
+    kapt("androidx.room:room-compiler:$rootProject.roomVersion")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$rootProject.coroutinesAndroidVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:$rootProject.datetimeKtxVersion")
+
+
+    testImplementation "junit:junit:$rootProject.junitVersion"
+    testImplementation "org.mockito:mockito-core:$rootProject.mockitoCoreVersion"
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:$rootProject.mockitoKotlinVersion"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$rootProject.coroutinesAndroidVersion"
+    testImplementation "androidx.arch.core:core-testing:$rootProject.coreTestingVersion"
+
+    androidTestImplementation "androidx.test.ext:junit:$rootProject.junitExtVersion"
+}
