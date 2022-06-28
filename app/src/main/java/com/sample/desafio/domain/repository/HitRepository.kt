@@ -11,5 +11,5 @@ interface HitRepository {
 
     suspend fun deleteHit(id: String): Either<Failure, Unit>
 
-    fun getHitsStream(): Flow<List<HitDomain>>
+    fun getHitsStream(): Flow<Either<Failure, List<HitDomain>>>
 }

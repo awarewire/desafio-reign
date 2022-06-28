@@ -4,9 +4,11 @@ import com.sample.desafio.data.datasource.HitRemoteDataSource
 import com.sample.desafio.data.datasource.local.db.HitsDao
 import com.sample.desafio.data.datasource.local.db.toListDomain
 import com.sample.desafio.data.datasource.local.db.toListEntity
+import com.sample.desafio.data.device.NetworkHandler
 import com.sample.desafio.domain.HitDomain
 import com.sample.desafio.domain.commons.functional.Either
 import com.sample.desafio.domain.commons.functional.Failure
+import com.sample.desafio.domain.commons.functional.NetworkConnection
 import com.sample.desafio.domain.commons.functional.onSuccess
 import com.sample.desafio.domain.repository.HitRepository
 import kotlinx.coroutines.flow.Flow
@@ -16,7 +18,8 @@ import javax.inject.Inject
 
 class HitRepositoryData @Inject constructor(
     private val remoteDataSource: HitRemoteDataSource,
-    private val hitsDao: HitsDao
+    private val hitsDao: HitsDao,
+    private val networkHandler: NetworkHandler
 ) : HitRepository {
 
     override suspend fun getHits(): Either<Failure, List<HitDomain>> {
@@ -31,9 +34,12 @@ class HitRepositoryData @Inject constructor(
         hitsDao.insert(insertHits.toListEntity())
     }
 
-    override fun getHitsStream(): Flow<List<HitDomain>> {
+    override fun getHitsStream(): Flow<Either<Failure, List<HitDomain>>> {
         return hitsDao.getHitsStream().map { entities ->
-            return@map entities.toListDomain()
+            if (entities.isEmpty() && !networkHandler.isConnected()) {
+                return@map Either.Left(NetworkConnection)
+            }
+            return@map Either.Right(entities.toListDomain())
         }
     }
 

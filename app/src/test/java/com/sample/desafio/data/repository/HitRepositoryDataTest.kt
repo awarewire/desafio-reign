@@ -8,7 +8,10 @@ import com.sample.desafio.data.datasource.HitRemoteDataSource
 import com.sample.desafio.data.datasource.local.db.HitsDao
 import com.sample.desafio.data.datasource.local.db.toListEntity
 import com.sample.desafio.data.datasource.remote.model.toListDomain
+import com.sample.desafio.data.device.NetworkHandler
+import com.sample.desafio.domain.HitDomain
 import com.sample.desafio.domain.commons.functional.Either
+import com.sample.desafio.domain.commons.functional.NetworkConnection
 import com.sample.desafio.utils.FakeData
 import com.sample.desafio.utils.FakeData.getFakeHitDomain
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -29,6 +32,9 @@ class HitRepositoryDataTest {
 
     @Mock
     lateinit var mockHitsDao: HitsDao
+
+    @Mock
+    lateinit var mockNetworkHandler: NetworkHandler
 
     @InjectMocks
     lateinit var sutHitRepositoryData: HitRepositoryData
@@ -57,8 +63,22 @@ class HitRepositoryDataTest {
             whenever(mockHitsDao.getHitsStream()).thenReturn(
                 flow { emit(hitsDomain.toListEntity()) }
             )
+
             val domainStream = sutHitRepositoryData.getHitsStream().first()
-            assertEquals(hitsDomain, domainStream)
+            assertEquals(Either.Right(hitsDomain), domainStream)
+        }
+
+    @Test
+    fun `given hits EMPTY when getHitsStream then error Either returned`() =
+        runTest {
+            val hitsDomain = listOf<HitDomain>()
+            whenever(mockHitsDao.getHitsStream()).thenReturn(
+                flow { emit(hitsDomain.toListEntity()) }
+            )
+            whenever(mockNetworkHandler.isConnected()).thenReturn(false)
+
+            val domainStream = sutHitRepositoryData.getHitsStream().first()
+            assertEquals(Either.Left(NetworkConnection), domainStream)
         }
 
     @Test

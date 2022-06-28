@@ -44,7 +44,7 @@ class DefaultUseCaseExecutor : UseCaseExecutor {
         val backgroundJob = scope.async(dispatcher) { run(params) }
         scope.launch {
             try {
-                backgroundJob.await().collect { onResult(Either.Right(it)) }
+                backgroundJob.await().collect { onResult(it) }
             } catch (e: Throwable) {
                 onResult(Either.Left(GenericUseCaseError(e)))
             }

@@ -83,17 +83,18 @@ class HitsViewModelTest {
     @Test
     fun `when subscribeHits then mockSubscribeHitsUseCase is called `() {
         runTest {
-            sutHitsViewModel.hits.observeForTesting {
+            sutHitsViewModel.mainStateUi.observeForTesting {
                 val hitsDomain = listOf(getFakeHitDomain(), getFakeHitDomain())
-                val response = flow { emit(hitsDomain) }
+                val mainStateUi = MainStateUi.DisplayHits(hitsDomain.toListStateUi())
+                val response = flow { emit(Either.Right(hitsDomain)) }
                 whenever(mockSubscribeHitsUseCase.run(Unit)).thenReturn(response)
 
                 sutHitsViewModel.subscribeHits()
 
                 advanceUntilIdle()
-                val hitsUiState = sutHitsViewModel.hits.getOrAwaitValue()
+                val hitsUiState = sutHitsViewModel.mainStateUi.getOrAwaitValue()
                 verify(mockSubscribeHitsUseCase).run(Unit)
-                Assert.assertEquals(hitsDomain.toListStateUi(), hitsUiState)
+                Assert.assertEquals(mainStateUi, hitsUiState)
             }
         }
     }
