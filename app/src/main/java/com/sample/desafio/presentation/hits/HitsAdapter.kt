@@ -2,12 +2,10 @@ package com.sample.desafio.presentation.hits
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
-import com.sample.desafio.R
+import com.sample.desafio.databinding.HitViewBinding
 
 
 class HitsAdapter(
@@ -21,10 +19,10 @@ class HitsAdapter(
         this.notifyDataSetChanged()
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, p1: Int): HitViewHolder =
-        HitViewHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.hit_view, parent, false)
-        )
+    override fun onCreateViewHolder(parent: ViewGroup, p1: Int): HitViewHolder {
+        val itemBinding = HitViewBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return HitViewHolder(itemBinding)
+    }
 
     override fun onBindViewHolder(parent: HitViewHolder, position: Int) {
         parent.bind(hits[position])
@@ -32,13 +30,14 @@ class HitsAdapter(
 
     override fun getItemCount() = hits.size
 
-    inner class HitViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class HitViewHolder(private val hitViewBinding: HitViewBinding) :
+        RecyclerView.ViewHolder(hitViewBinding.root) {
         fun bind(hit: HitStateUi) {
-            itemView.findViewById<TextView>(R.id.tvTitle).text = hit.title
-            itemView.findViewById<TextView>(R.id.tvAuthorDate).text = hit.retrieveAuthorAndDate()
-            itemView.setOnClickListener { listener.invoke(hit) }
+            hitViewBinding.tvTitle.text = hit.title
+            hitViewBinding.tvAuthorDate.text = hit.retrieveAuthorAndDate()
+            hitViewBinding.root.setOnClickListener { listener.invoke(hit) }
         }
 
-        fun getViewForeground(): ConstraintLayout = itemView.findViewById(R.id.clHitContent)
+        fun getViewForeground(): ConstraintLayout = hitViewBinding.clHitContent
     }
 }
